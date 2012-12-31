@@ -18,6 +18,19 @@
 #include <GL/glut.h>
 #endif
 
+// The origin position of block
+GLfloat x1 = 0.0f;
+GLfloat y1 = 0.0f;
+GLfloat rsize = 25;
+
+// The every step of x and y
+GLfloat xstep = 1.0f;
+GLfloat ystep = 1.0f;
+
+// The height and width of window
+GLfloat windowWidth ;
+GLfloat windowHeight;
+
 // Render Scene
 void OnRenderScene()
 {
@@ -28,15 +41,18 @@ void OnRenderScene()
     glColor3f(1.0f, 0.0f, 0.0f);
 
     // Draw Rectangle
-    glRectf(-25.0f, 25.0f, 25.0f, -25.0f);
+    glRectf(x1, y1, x1 + rsize, y1 - rsize);
 
     // Refresh and draw
-    glFlush();
+    glutSwapBuffers();
 
 }
 
 void OnChangeSize(GLsizei w, GLsizei h)
 {
+    windowHeight = h;
+    windowWidth = w;
+
     GLfloat aspectRatio;
 
     if (h == 0)
@@ -60,6 +76,32 @@ void OnChangeSize(GLsizei w, GLsizei h)
     glLoadIdentity();
 }
 
+void OnTime(int value)
+{
+    if (x1 > windowWidth-rsize || x1 < -windowWidth)
+        xstep = -xstep;
+
+    if (y1 > windowHeight || y1 < -windowHeight + rsize)
+        ystep = -ystep;
+
+    x1 += xstep;
+    y1 += ystep;
+
+    // Avoid x cross the boundary of the window
+    if (x1 > (windowWidth - rsize + xstep))
+        x1 = windowWidth - rsize - 1;
+    else if (x1 < (-windowWidth - xstep))
+        x1 = -windowWidth - 1;
+
+    if (y1 > (windowHeight + xstep))
+        y1 = windowWidth - 1;
+    else if (y1 < -(windowHeight - rsize + xstep))
+        y1 = -windowWidth + rsize - 1;
+
+    glutPostRedisplay();
+    glutTimerFunc(33, OnTime, 1);
+}
+
 // Setup render condition
 void SetupRC()
 {
@@ -72,10 +114,13 @@ void SetupRC()
 int main(int argc, char* argv[])
 {
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+    glutInitWindowSize(800, 600);
     glutCreateWindow("Glut01");
-    glutDisplayFunc(OnRenderScene);
+
     glutReshapeFunc(OnChangeSize);
+    glutTimerFunc(33, OnTime, 1);
+    glutDisplayFunc(OnRenderScene);
 
     SetupRC();
 
