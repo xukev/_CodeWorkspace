@@ -19,14 +19,45 @@
 #endif
 
 // Render Scene
-void RenderScene()
+void OnRenderScene()
 {
     // use current color to clear the window
     glClear(GL_COLOR_BUFFER_BIT);
 
+    // Set draw color
+    glColor3f(1.0f, 0.0f, 0.0f);
+
+    // Draw Rectangle
+    glRectf(-25.0f, 25.0f, 25.0f, -25.0f);
+
     // Refresh and draw
     glFlush();
 
+}
+
+void OnChangeSize(GLsizei w, GLsizei h)
+{
+    GLfloat aspectRatio;
+
+    if (h == 0)
+        h =1;
+
+    // Set view
+    glViewport(0, 0, w, h);
+
+    // Reset crood system
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    // build rect
+    aspectRatio = (GLfloat)w / (GLfloat)h;
+    if (w < h)
+        glOrtho(-100.0, 100.0, -100/aspectRatio, 100.0/aspectRatio, 1.0, -1.0);
+    else
+        glOrtho(-100.0 * aspectRatio, 100.0*aspectRatio, -100.0, 100.0, 1.0, -1.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
 // Setup render condition
@@ -36,12 +67,15 @@ void SetupRC()
 
 }
 
+
+
 int main(int argc, char* argv[])
 {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA);
     glutCreateWindow("Glut01");
-    glutDisplayFunc(RenderScene);
+    glutDisplayFunc(OnRenderScene);
+    glutReshapeFunc(OnChangeSize);
 
     SetupRC();
 
