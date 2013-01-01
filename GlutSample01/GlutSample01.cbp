@@ -42,7 +42,9 @@
 			<Add library="gdi32" />
 			<Add directory="$(#glut.lib)" />
 		</Linker>
-		<Unit filename="main.cpp" />
+		<Unit filename="menu_test.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Extensions>
 			<code_completion />
 			<envvars />
