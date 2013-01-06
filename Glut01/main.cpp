@@ -50,9 +50,6 @@ void OnRenderScene()
 
 void OnChangeSize(GLsizei w, GLsizei h)
 {
-    windowHeight = h;
-    windowWidth = w;
-
     GLfloat aspectRatio;
 
     if (h == 0)
@@ -68,9 +65,18 @@ void OnChangeSize(GLsizei w, GLsizei h)
     // build rect
     aspectRatio = (GLfloat)w / (GLfloat)h;
     if (w < h)
-        glOrtho(-100.0, 100.0, -100/aspectRatio, 100.0/aspectRatio, 1.0, -1.0);
+    {
+        windowWidth = 100;
+        windowHeight = 100 / aspectRatio;
+        glOrtho(-100.0, 100.0, -windowHeight, windowHeight, 1.0, -1.0);
+    }
     else
-        glOrtho(-100.0 * aspectRatio, 100.0*aspectRatio, -100.0, 100.0, 1.0, -1.0);
+    {
+        windowHeight = 100;
+        windowWidth = 100*aspectRatio;
+        glOrtho(-windowWidth, windowWidth, -100.0, 100.0, 1.0, -1.0);
+    }
+
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
