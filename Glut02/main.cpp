@@ -17,19 +17,10 @@ static GLfloat yRot = 0.0f;
 void RenderScene(void)
 {
     // Angle of revolution around the nucleus
-    static GLfloat fElect1 = 0.0f;
+    static float fElect1 = 0.0f;
 
     // Clear the window with current clearing color
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    // Reset the modelview matrix
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
-    // Translate the whole scene out and into view
-    // This is the initial viewing transformation
-    glTranslatef(0.0f, 0.0f, -100.0f);
-    glRotatef(45.0f, 1.0f, 1.0f, 1.0f);
 
     // Red Nucleus
     glColor3ub(255, 0, 0);
@@ -61,15 +52,15 @@ void RenderScene(void)
     glTranslatef(-70.0f, 0.0f, 0.0f);
     glutSolidSphere(6.0f, 15, 15);
     glPopMatrix();
-//
-//
-//    // Third Electron Orbit
-//    glPushMatrix();
-//    glRotatef(360.0f-45.0f,0.0f, 0.0f, 1.0f);
-//    glRotatef(fElect1, 0.0f, 1.0f, 0.0f);
-//    glTranslatef(0.0f, 0.0f, 60.0f);
-//    glutSolidSphere(6.0f, 15, 15);
-//    glPopMatrix();
+
+
+    // Third Electron Orbit
+    glPushMatrix();
+    glRotatef(360.0f-45.0f,0.0f, 0.0f, 1.0f);
+    glRotatef(fElect1, 0.0f, 1.0f, 0.0f);
+    glTranslatef(0.0f, 0.0f, 60.0f);
+    glutSolidSphere(6.0f, 15, 15);
+    glPopMatrix();
 
 
     // Increment the angle of revolution
@@ -130,10 +121,9 @@ void TimerFunc(int value)
     glutTimerFunc(100, TimerFunc, 1);
 }
 
-
 void ChangeSize(int w, int h)
 {
-    GLfloat nRange = 100.0f;
+    GLfloat fAspect;
 
     // Prevent a divide by zero
     if(h == 0)
@@ -142,19 +132,16 @@ void ChangeSize(int w, int h)
     // Set Viewport to window dimensions
     glViewport(0, 0, w, h);
 
-
     // Reset coordinate system
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    // Establish clipping volume (left, right, bottom, top, near, far)
-    if (w <= h)
-        glOrtho (-nRange, nRange, nRange*h/w, -nRange*h/w, -nRange*2.0f, nRange*2.0f);
-    else
-        glOrtho (-nRange*w/h, nRange*w/h, nRange, -nRange, -nRange*2.0f, nRange*2.0f);
+    fAspect = (float)w/(float)h;
+    gluPerspective(45.0, fAspect, 1.0, 500.0);
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    glTranslatef(0.0f, 0.0f, -250.0f);
 }
 
 int main(int argc, char* argv[])
@@ -162,7 +149,7 @@ int main(int argc, char* argv[])
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
     glutInitWindowSize(800, 600);
-    glutCreateWindow("OpenGL Atom");
+    glutCreateWindow("OpenGL Atom - Part Duex");
     glutReshapeFunc(ChangeSize);
     glutSpecialFunc(SpecialKeys);
     glutDisplayFunc(RenderScene);

@@ -1,0 +1,68 @@
+# depslib dependency file v1.0
+1177381614 source:c:\_codeworkspace\glut03\glee.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	"GLee.h"
+	<Carbon/Carbon.h>
+
+1177381614 c:\_codeworkspace\glut03\glee.h
+	<windows.h>
+	<GL/gl.h>
+	<OpenGL/gl.h>
+	<GL/gl.h>
+	<GL/glx.h>
+	<stddef.h>
+
+1357478688 source:c:\_codeworkspace\glut03\gltools.cpp
+	"gltools.h"
+	"math3d.h"
+	<stdio.h>
+	<assert.h>
+	<stdlib.h>
+	"wglext.h"
+
+1357478628 c:\_codeworkspace\glut03\gltools.h
+	<windows.h>
+	"glee.h"
+	<gl\gl.h>
+	<gl\glu.h>
+	<gl\glut.h>
+	<Carbon/Carbon.h>
+	"glee.h"
+	<OpenGL/gl.h>
+	<OpenGL/glu.h>
+	<Glut/glut.h>
+	"GLee.h"
+	<GL/gl.h>
+	<GL/glu.h>
+	<glut.h>
+	<stdlib.h>
+	<math.h>
+
+1262771448 c:\3p\glut\include\gl\glut.h
+	<windows.h>
+	<GL/gl.h>
+	<GL/glu.h>
+
+1183754557 c:\_codeworkspace\glut03\math3d.h
+	<math.h>
+	<memory.h>
+
+1177381614 c:\_codeworkspace\glut03\wglext.h
+	<windows.h>
+
+1177381614 source:c:\_codeworkspace\glut03\math3d.cpp
+	<math.h>
+	"math3d.h"
+
+1357480568 source:c:\_codeworkspace\glut03\sphereworld.cpp
+	"gltools.h"
+	"glframe.h"
+	<math.h>
+	<stdlib.h>
+	<stdio.h>
+
+1183924598 c:\_codeworkspace\glut03\glframe.h
+	"math3d.h"
+

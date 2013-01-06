@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_layout_file>
-	<ActiveProject path="Glut02/Glut02.cbp" />
+	<ActiveProject path="Glut03/Glut03.cbp" />
+	<PreferredTarget name="Debug" />
 </CodeBlocks_workspace_layout_file>
