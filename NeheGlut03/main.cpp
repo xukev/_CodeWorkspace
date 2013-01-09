@@ -136,6 +136,7 @@ int main ( int argc, char** argv )   // Create Main Function For Bringing It All
     glutReshapeFunc     ( reshape );
     glutKeyboardFunc    ( keyboard );
     glutSpecialFunc     ( arrow_keys );
+    glutIdleFunc(display);
     glutMainLoop        ( );          // Initialize The Main Loop
 
     return 0;
