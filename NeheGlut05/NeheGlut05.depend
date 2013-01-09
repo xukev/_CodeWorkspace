@@ -1,0 +1,16 @@
+# depslib dependency file v1.0
+1357735213 source:c:\_codeworkspace\neheglut01\main.cpp
+	<GLUT/glut.h>
+	<GL/glut.h>
+	<stdlib.h>
+
+1262771448 c:\3p\glut\include\gl\glut.h
+	<windows.h>
+	<GL/gl.h>
+	<GL/glu.h>
+
+1357737187 source:c:\_codeworkspace\neheglut03\main.cpp
+	<GLUT/glut.h>
+	<GL/glut.h>
+	<stdlib.h>
+
