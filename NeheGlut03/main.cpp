@@ -23,6 +23,8 @@
 static bool s_isfullwindow = false;
 static GLfloat s_rotTriangle = 0.0f;
 static GLfloat s_rotQuad = 0.0f;
+static GLfloat s_triStep = 0.0f;
+static GLfloat s_quadStep = 0.0f;
 
 void init (void)     // Create Some Everyday Functions
 {
@@ -69,8 +71,8 @@ void display ( void )   // Create The Display Function
     glutSwapBuffers ( );
     // Swap The Buffers To Not Be Left With A Clear Screen
 
-    s_rotTriangle += 0.1;
-    s_rotQuad -= 0.2;
+    s_rotTriangle += s_triStep;
+    s_rotQuad -= s_quadStep;
 }
 
 void reshape ( int w, int h )   // Create The Reshape Function (the viewport)
@@ -119,6 +121,15 @@ void arrow_keys ( int a_keys, int x, int y )  // Create Special Function (requir
 
         s_isfullwindow = !s_isfullwindow;
         break;
+
+    case GLUT_KEY_LEFT:
+        s_triStep += 0.2;
+        break;
+
+    case GLUT_KEY_RIGHT:
+        s_quadStep -= 0.1;
+        break;
+
     default:
         break;
     }
