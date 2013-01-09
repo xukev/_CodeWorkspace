@@ -21,6 +21,8 @@
 #include <stdlib.h>
 
 static bool s_isfullwindow = false;
+static GLfloat s_rotTriangle = 0.0f;
+static GLfloat s_rotQuad = 0.0f;
 
 void init (void)     // Create Some Everyday Functions
 {
@@ -42,6 +44,7 @@ void display ( void )   // Create The Display Function
 
     glPushMatrix();
     glTranslatef(-1.5f,0.0f,0.0f);						// Move Left 1.5 Units
+    glRotatef(s_rotTriangle, 0.0f, 1.0f, 0.0f);
     glBegin(GL_TRIANGLES);								// Drawing Using Triangles
     glColor3f(1.0f, 0.0f, 0.0f); glVertex3f( 0.0f, 1.0f, 0.0f);					// Top
     glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(-1.0f,-1.0f, 0.0f);					// Bottom Left
@@ -52,6 +55,7 @@ void display ( void )   // Create The Display Function
     glPushMatrix();
 
     glTranslatef(1.5f,0.0f,0.0f);						// Move Right 1.5 Units
+    glRotatef(s_rotQuad, 0.0f, 1.0f, 0.0f);
     glColor3f(1.0f, 1.0f, 0.0f);
     glBegin(GL_QUADS);									// Draw A Quad
     glVertex3f(-1.0f, 1.0f, 0.0f);					// Top Left
@@ -64,6 +68,9 @@ void display ( void )   // Create The Display Function
 
     glutSwapBuffers ( );
     // Swap The Buffers To Not Be Left With A Clear Screen
+
+    s_rotTriangle += 0.1;
+    s_rotQuad -= 0.2;
 }
 
 void reshape ( int w, int h )   // Create The Reshape Function (the viewport)
@@ -107,6 +114,7 @@ void arrow_keys ( int a_keys, int x, int y )  // Create Special Function (requir
         else
         {
             glutReshapeWindow ( 800, 600 ); // Go Into A 800 By 600 Window
+            glutPositionWindow(100, 100);
         }
 
         s_isfullwindow = !s_isfullwindow;
