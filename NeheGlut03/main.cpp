@@ -43,15 +43,16 @@ void display ( void )   // Create The Display Function
     glPushMatrix();
     glTranslatef(-1.5f,0.0f,0.0f);						// Move Left 1.5 Units
     glBegin(GL_TRIANGLES);								// Drawing Using Triangles
-    glVertex3f( 0.0f, 1.0f, 0.0f);					// Top
-    glVertex3f(-1.0f,-1.0f, 0.0f);					// Bottom Left
-    glVertex3f( 1.0f,-1.0f, 0.0f);					// Bottom Right
+    glColor3f(1.0f, 0.0f, 0.0f); glVertex3f( 0.0f, 1.0f, 0.0f);					// Top
+    glColor3f(0.0f, 1.0f, 0.0f); glVertex3f(-1.0f,-1.0f, 0.0f);					// Bottom Left
+    glColor3f(0.0f, 0.0f, 1.0f); glVertex3f( 1.0f,-1.0f, 0.0f);					// Bottom Right
     glEnd();
     glPopMatrix();
 
     glPushMatrix();
 
     glTranslatef(1.5f,0.0f,0.0f);						// Move Right 1.5 Units
+    glColor3f(1.0f, 1.0f, 0.0f);
     glBegin(GL_QUADS);									// Draw A Quad
     glVertex3f(-1.0f, 1.0f, 0.0f);					// Top Left
     glVertex3f( 1.0f, 1.0f, 0.0f);					// Top Right
