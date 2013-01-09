@@ -105,7 +105,7 @@ void keyboard ( unsigned char key, int x, int y )  // Create Keyboard Function
     }
 }
 
-void arrow_keys ( int a_keys, int x, int y )  // Create Special Function (required for arrow keys)
+void special_keys ( int a_keys, int x, int y )  // Create Special Function (required for arrow keys)
 {
     switch ( a_keys )
     {
@@ -127,7 +127,7 @@ void arrow_keys ( int a_keys, int x, int y )  // Create Special Function (requir
         break;
 
     case GLUT_KEY_RIGHT:
-        s_quadStep -= 0.1;
+        s_quadStep += 0.1;
         break;
 
     default:
@@ -146,7 +146,7 @@ int main ( int argc, char** argv )   // Create Main Function For Bringing It All
     glutDisplayFunc     ( display );  // Matching Earlier Functions To Their Counterparts
     glutReshapeFunc     ( reshape );
     glutKeyboardFunc    ( keyboard );
-    glutSpecialFunc     ( arrow_keys );
+    glutSpecialFunc     ( special_keys );
     glutIdleFunc(display);
     glutMainLoop        ( );          // Initialize The Main Loop
 
