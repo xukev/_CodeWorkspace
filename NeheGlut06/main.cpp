@@ -19,6 +19,7 @@
 #endif
 
 #include <stdlib.h>
+#include <windows.h>
 
 static bool s_isfullwindow = false;
 static GLfloat s_rotTriangle = 0.0f;

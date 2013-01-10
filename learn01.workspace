@@ -2,8 +2,11 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="Workspace">
 		<Project filename="Glut01/Glut01.cbp" />
-		<Project filename="GL01/GL01.cbp" />
 		<Project filename="Glut02/Glut02.cbp" />
 		<Project filename="Glut03/Glut03.cbp" />
+		<Project filename="NeheGlut01/NeheGlut01.cbp" />
+		<Project filename="NeheGlut03/NeheGlut03.cbp" />
+		<Project filename="NeheGlut05/NeheGlut05.cbp" />
+		<Project filename="NeheGlut06/NeheGlut06.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
