@@ -16,10 +16,13 @@
 #include <GLUT/glut.h>
 #else
 #include <GL/glut.h>
+#include <GL/glext.h>
 #endif
 
 #include <stdlib.h>
+#include <stdio.h>
 #include <windows.h>
+#include <windef.h>
 
 static bool s_isfullwindow = false;
 static GLfloat s_rotTriangle = 0.0f;
@@ -27,8 +30,174 @@ static GLfloat s_rotQuad = 0.0f;
 static GLfloat s_triStep = 0.0f;
 static GLfloat s_quadStep = 0.0f;
 
+static GLuint textureId;                         // Storage For One Texture ( NEW )
+
+
+long ImageWidth=256;
+long ImageHeight=256;
+GLubyte Image[256][256][3];
+void ReadHeader(FILE *fp , BITMAPFILEHEADER * p_bitmapheader , BITMAPINFOHEADER *p_bitmapinfo)
+{
+    fseek(fp, 0, SEEK_SET) ;
+    fread( &p_bitmapheader->bfType,sizeof(unsigned short), 1, fp );
+    fseek(fp, 2, SEEK_SET) ;
+    fread( &p_bitmapheader->bfSize,sizeof(unsigned long), 1, fp );
+    fseek(fp, 6, SEEK_SET) ;
+    fread( &p_bitmapheader->bfReserved1,sizeof(unsigned short), 1, fp );
+    fseek(fp, 8, SEEK_SET) ;
+    fread( &p_bitmapheader->bfReserved2,sizeof(unsigned short), 1, fp );
+    fseek(fp, 10, SEEK_SET) ;
+    fread( &p_bitmapheader->bfOffBits,sizeof(unsigned long), 1, fp );
+    fseek(fp, 14, SEEK_SET) ;
+    fread( &p_bitmapinfo->biSize, sizeof(unsigned long), 1, fp );
+    fseek(fp, 18, SEEK_SET) ;
+    fread( &p_bitmapinfo->biWidth, sizeof(unsigned long), 1, fp );
+
+    fseek(fp, 22, SEEK_SET) ;
+    fread( &p_bitmapinfo->biHeight, sizeof(unsigned long), 1, fp );
+
+    fseek(fp, 26, SEEK_SET) ;
+    fread( &p_bitmapinfo->biPlanes, sizeof(unsigned short), 1, fp );
+
+    fseek(fp, 28, SEEK_SET) ;
+    fread( &p_bitmapinfo->biBitCount, sizeof(unsigned short), 1, fp );
+
+    fseek(fp, 30, SEEK_SET) ;
+    fread( &p_bitmapinfo->biCompression, sizeof(unsigned long), 1, fp );
+
+    fseek(fp, 34, SEEK_SET) ;
+    fread( &p_bitmapinfo->biSizeImage, sizeof(unsigned long), 1, fp );
+
+    fseek(fp, 38, SEEK_SET) ;
+    fread( &p_bitmapinfo->biXPelsPerMeter, sizeof(unsigned long), 1, fp );
+
+    fseek(fp, 42, SEEK_SET) ;
+    fread( &p_bitmapinfo->biYPelsPerMeter, sizeof(unsigned long), 1, fp );
+
+    fseek(fp, 46, SEEK_SET) ;
+    fread( &p_bitmapinfo->biClrUsed, sizeof(unsigned long), 1, fp );
+    fseek(fp, 50, SEEK_SET) ;
+    fread( &p_bitmapinfo->biClrImportant, sizeof(unsigned long), 1, fp );
+
+}
+
+void ReadBitmapFile(LPTSTR filename)
+{
+    BITMAPFILEHEADER bitmapheader ;
+    BITMAPINFOHEADER bitmapinfo ;
+    FILE *fp;
+
+    fp = fopen(filename , "r") ;
+    if(!fp)
+    {
+        puts("Read file failed.") ;
+        return;
+    }
+
+    ReadHeader(fp, &bitmapheader , &bitmapinfo) ;
+
+    if(bitmapinfo.biBitCount != 24)
+    {
+        puts("UNSUPPORT") ;
+        return;
+    }
+    ImageWidth = bitmapinfo.biWidth;
+    ImageHeight = bitmapinfo.biHeight;
+    int i=bitmapheader.bfOffBits;
+    while(i<bitmapheader.bfSize)
+    {
+        for(int j=0; j<ImageWidth; j++)
+            for(int k=0; k<ImageHeight; k++)
+            {
+                fseek(fp, i, SEEK_SET) ;
+                fread(Image[j][k]+2, 1, 1, fp) ;
+                fseek(fp, i+1, SEEK_SET) ;
+                fread(Image[j][k]+1, 1, 1, fp) ;
+                fseek(fp, i+2, SEEK_SET) ;
+                fread(Image[j][k], 1, 1, fp) ;
+
+                i=i+3;
+            }
+    }
+
+    fclose(fp) ;
+}
+
+bool LoadTexture1(LPTSTR szFileName, GLuint &texid) // Creates Texture From A Bitmap File
+{
+    ReadBitmapFile(szFileName);
+    glGenTextures(1, &texid); // Create The Texture
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // Pixel Storage Mode (Word Alignment / 4 Bytes)
+
+    // Typical Texture Generation Using Data From The Bitmap
+    glBindTexture(GL_TEXTURE_2D, texid); // Bind To The Texture ID
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Min Filter
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Mag Filter
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ImageWidth,ImageHeight, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE,&Image[0][0][0]);
+}
+
+bool LoadTexture(LPTSTR szFileName, GLuint &texid) // Creates Texture From A Bitmap File
+{
+    HBITMAP hBMP; // Handle Of The Bitmap
+    BITMAP BMP; // Bitmap Structure
+
+    glGenTextures(1, &texid); // Create The Texture
+    hBMP=(HBITMAP)LoadImage(GetModuleHandle(NULL), szFileName, IMAGE_BITMAP, 0, 0, LR_CREATEDIBSECTION | LR_LOADFROMFILE );
+
+    if (!hBMP) // Does The Bitmap Exist?
+        return false; // If Not Return False
+
+    GetObject(hBMP, sizeof(BMP), &BMP); // Get The Object
+    // hBMP: Handle To Graphics Object
+    // sizeof(BMP): Size Of Buffer For Object Information
+    // &BMP: Buffer For Object Information
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // Pixel Storage Mode (Word Alignment / 4 Bytes)
+
+    // Typical Texture Generation Using Data From The Bitmap
+    glBindTexture(GL_TEXTURE_2D, texid); // Bind To The Texture ID
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Min Filter
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Mag Filter
+
+    GLint interlFormat = -1;
+    GLenum eformat = GL_RGB;
+
+    int sDepth = BMP.bmBitsPixel / 8;
+    switch (sDepth)
+    {
+    case 3:
+        interlFormat = GL_RGB8;
+        eformat = GL_BGR_EXT;
+        break;
+
+    case 4:
+        interlFormat = GL_RGBA8;
+        eformat = GL_BGR_EXT;
+        break;
+
+    case 1:
+        interlFormat = GL_LUMINANCE8;
+        eformat = GL_LUMINANCE;
+        break;
+    default:
+        return false;
+    }
+
+
+    glTexImage2D(GL_TEXTURE_2D, 0, interlFormat, BMP.bmWidth, BMP.bmHeight, 0, eformat, GL_UNSIGNED_BYTE, BMP.bmBits);
+
+    DeleteObject(hBMP); // Delete The Object
+
+    return true; // Loading Was Successful
+}
+
 void init (void)     // Create Some Everyday Functions
 {
+    if (!LoadTexture1("C:/_CodeWorkspace/NeheGlut06/Data/NeHe.bmp", textureId))
+        return;
+
+    glEnable(GL_TEXTURE_2D);
 
     glShadeModel(GL_SMOOTH);							// Enable Smooth Shading
     glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black Background
@@ -50,45 +219,39 @@ void display ( void )   // Create The Display Function
     glRotatef(s_rotQuad, 1.0f, 0.0f, 0.0f);
     glRotatef(s_rotTriangle, 0.0f, 1.0f, 0.0f);
 
-    glBegin(GL_QUADS);
-
-    glColor3f(0.0f,1.0f,0.0f);          // Set The Color To Green
-    glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Top)
-    glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Top)
-    glVertex3f(-1.0f, 1.0f, 1.0f);          // Bottom Left Of The Quad (Top)
-    glVertex3f( 1.0f, 1.0f, 1.0f);          // Bottom Right Of The Quad (Top)
-
-    glColor3f(1.0f,0.5f,0.0f);          // Set The Color To Orange
-    glVertex3f( 1.0f,-1.0f, 1.0f);          // Top Right Of The Quad (Bottom)
-    glVertex3f(-1.0f,-1.0f, 1.0f);          // Top Left Of The Quad (Bottom)
-    glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Bottom)
-    glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Bottom)
-
-    glColor3f(1.0f,0.0f,0.0f);          // Set The Color To Red
-    glVertex3f( 1.0f, 1.0f, 1.0f);          // Top Right Of The Quad (Front)
-    glVertex3f(-1.0f, 1.0f, 1.0f);          // Top Left Of The Quad (Front)
-    glVertex3f(-1.0f,-1.0f, 1.0f);          // Bottom Left Of The Quad (Front)
-    glVertex3f( 1.0f,-1.0f, 1.0f);          // Bottom Right Of The Quad (Front)
-
-    glColor3f(1.0f,1.0f,0.0f);          // Set The Color To Yellow
-    glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Back)
-    glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Back)
-    glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Back)
-    glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Back)
-
-    glColor3f(0.0f,0.0f,1.0f);          // Set The Color To Blue
-    glVertex3f(-1.0f, 1.0f, 1.0f);          // Top Right Of The Quad (Left)
-    glVertex3f(-1.0f, 1.0f,-1.0f);          // Top Left Of The Quad (Left)
-    glVertex3f(-1.0f,-1.0f,-1.0f);          // Bottom Left Of The Quad (Left)
-    glVertex3f(-1.0f,-1.0f, 1.0f);          // Bottom Right Of The Quad (Left)
-
-    glColor3f(1.0f,0.0f,1.0f);          // Set The Color To Violet
-    glVertex3f( 1.0f, 1.0f,-1.0f);          // Top Right Of The Quad (Right)
-    glVertex3f( 1.0f, 1.0f, 1.0f);          // Top Left Of The Quad (Right)
-    glVertex3f( 1.0f,-1.0f, 1.0f);          // Bottom Left Of The Quad (Right)
-    glVertex3f( 1.0f,-1.0f,-1.0f);          // Bottom Right Of The Quad (Right)
-
-    glEnd();
+    glBindTexture(GL_TEXTURE_2D, textureId);
+  glBegin(GL_QUADS);
+    // Front Face
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f,  1.0f);  // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f); glVertex3f( 1.0f, -1.0f,  1.0f);  // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f); glVertex3f( 1.0f,  1.0f,  1.0f);  // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f,  1.0f,  1.0f);  // Top Left Of The Texture and Quad
+    // Back Face
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);  // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f,  1.0f, -1.0f);  // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f); glVertex3f( 1.0f,  1.0f, -1.0f);  // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f); glVertex3f( 1.0f, -1.0f, -1.0f);  // Bottom Left Of The Texture and Quad
+    // Top Face
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f,  1.0f, -1.0f);  // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f,  1.0f,  1.0f);  // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f); glVertex3f( 1.0f,  1.0f,  1.0f);  // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f); glVertex3f( 1.0f,  1.0f, -1.0f);  // Top Right Of The Texture and Quad
+    // Bottom Face
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, -1.0f, -1.0f);  // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f); glVertex3f( 1.0f, -1.0f, -1.0f);  // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f); glVertex3f( 1.0f, -1.0f,  1.0f);  // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f,  1.0f);  // Bottom Right Of The Texture and Quad
+    // Right face
+    glTexCoord2f(1.0f, 0.0f); glVertex3f( 1.0f, -1.0f, -1.0f);  // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f); glVertex3f( 1.0f,  1.0f, -1.0f);  // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f); glVertex3f( 1.0f,  1.0f,  1.0f);  // Top Left Of The Texture and Quad
+    glTexCoord2f(0.0f, 0.0f); glVertex3f( 1.0f, -1.0f,  1.0f);  // Bottom Left Of The Texture and Quad
+    // Left Face
+    glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);  // Bottom Left Of The Texture and Quad
+    glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f,  1.0f);  // Bottom Right Of The Texture and Quad
+    glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f,  1.0f,  1.0f);  // Top Right Of The Texture and Quad
+    glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f,  1.0f, -1.0f);  // Top Left Of The Texture and Quad
+glEnd();
     glPopMatrix();
 
 

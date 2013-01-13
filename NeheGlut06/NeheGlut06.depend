@@ -14,3 +14,12 @@
 	<GL/glut.h>
 	<stdlib.h>
 
+1358082114 source:c:\_codeworkspace\neheglut06\main.cpp
+	<GLUT/glut.h>
+	<GL/glut.h>
+	<GL/glext.h>
+	<stdlib.h>
+	<stdio.h>
+	<windows.h>
+	<windef.h>
+
