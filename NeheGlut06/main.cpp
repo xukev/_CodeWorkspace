@@ -96,7 +96,7 @@ bool LoadTexture(LPTSTR szFileName, GLuint &texid) // Creates Texture From A Bit
 
 void init (void)     // Create Some Everyday Functions
 {
-    if (!LoadTexture("Data/NeHe.bmp", textureId))
+    if (!LoadTexture("Data/Crate.bmp", textureId))
         return;
 
     glEnable(GL_TEXTURE_2D);
