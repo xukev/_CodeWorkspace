@@ -33,110 +33,6 @@ static GLfloat s_quadStep = 0.0f;
 static GLuint textureId;                         // Storage For One Texture ( NEW )
 
 
-long ImageWidth=256;
-long ImageHeight=256;
-GLubyte Image[256][256][3];
-void ReadHeader(FILE *fp , BITMAPFILEHEADER * p_bitmapheader , BITMAPINFOHEADER *p_bitmapinfo)
-{
-    fseek(fp, 0, SEEK_SET) ;
-    fread( &p_bitmapheader->bfType,sizeof(unsigned short), 1, fp );
-    fseek(fp, 2, SEEK_SET) ;
-    fread( &p_bitmapheader->bfSize,sizeof(unsigned long), 1, fp );
-    fseek(fp, 6, SEEK_SET) ;
-    fread( &p_bitmapheader->bfReserved1,sizeof(unsigned short), 1, fp );
-    fseek(fp, 8, SEEK_SET) ;
-    fread( &p_bitmapheader->bfReserved2,sizeof(unsigned short), 1, fp );
-    fseek(fp, 10, SEEK_SET) ;
-    fread( &p_bitmapheader->bfOffBits,sizeof(unsigned long), 1, fp );
-    fseek(fp, 14, SEEK_SET) ;
-    fread( &p_bitmapinfo->biSize, sizeof(unsigned long), 1, fp );
-    fseek(fp, 18, SEEK_SET) ;
-    fread( &p_bitmapinfo->biWidth, sizeof(unsigned long), 1, fp );
-
-    fseek(fp, 22, SEEK_SET) ;
-    fread( &p_bitmapinfo->biHeight, sizeof(unsigned long), 1, fp );
-
-    fseek(fp, 26, SEEK_SET) ;
-    fread( &p_bitmapinfo->biPlanes, sizeof(unsigned short), 1, fp );
-
-    fseek(fp, 28, SEEK_SET) ;
-    fread( &p_bitmapinfo->biBitCount, sizeof(unsigned short), 1, fp );
-
-    fseek(fp, 30, SEEK_SET) ;
-    fread( &p_bitmapinfo->biCompression, sizeof(unsigned long), 1, fp );
-
-    fseek(fp, 34, SEEK_SET) ;
-    fread( &p_bitmapinfo->biSizeImage, sizeof(unsigned long), 1, fp );
-
-    fseek(fp, 38, SEEK_SET) ;
-    fread( &p_bitmapinfo->biXPelsPerMeter, sizeof(unsigned long), 1, fp );
-
-    fseek(fp, 42, SEEK_SET) ;
-    fread( &p_bitmapinfo->biYPelsPerMeter, sizeof(unsigned long), 1, fp );
-
-    fseek(fp, 46, SEEK_SET) ;
-    fread( &p_bitmapinfo->biClrUsed, sizeof(unsigned long), 1, fp );
-    fseek(fp, 50, SEEK_SET) ;
-    fread( &p_bitmapinfo->biClrImportant, sizeof(unsigned long), 1, fp );
-
-}
-
-void ReadBitmapFile(LPTSTR filename)
-{
-    BITMAPFILEHEADER bitmapheader ;
-    BITMAPINFOHEADER bitmapinfo ;
-    FILE *fp;
-
-    fp = fopen(filename , "r") ;
-    if(!fp)
-    {
-        puts("Read file failed.") ;
-        return;
-    }
-
-    ReadHeader(fp, &bitmapheader , &bitmapinfo) ;
-
-    if(bitmapinfo.biBitCount != 24)
-    {
-        puts("UNSUPPORT") ;
-        return;
-    }
-    ImageWidth = bitmapinfo.biWidth;
-    ImageHeight = bitmapinfo.biHeight;
-    int i=bitmapheader.bfOffBits;
-    while(i<bitmapheader.bfSize)
-    {
-        for(int j=0; j<ImageWidth; j++)
-            for(int k=0; k<ImageHeight; k++)
-            {
-                fseek(fp, i, SEEK_SET) ;
-                fread(Image[j][k]+2, 1, 1, fp) ;
-                fseek(fp, i+1, SEEK_SET) ;
-                fread(Image[j][k]+1, 1, 1, fp) ;
-                fseek(fp, i+2, SEEK_SET) ;
-                fread(Image[j][k], 1, 1, fp) ;
-
-                i=i+3;
-            }
-    }
-
-    fclose(fp) ;
-}
-
-bool LoadTexture1(LPTSTR szFileName, GLuint &texid) // Creates Texture From A Bitmap File
-{
-    ReadBitmapFile(szFileName);
-    glGenTextures(1, &texid); // Create The Texture
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 4); // Pixel Storage Mode (Word Alignment / 4 Bytes)
-
-    // Typical Texture Generation Using Data From The Bitmap
-    glBindTexture(GL_TEXTURE_2D, texid); // Bind To The Texture ID
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); // Linear Min Filter
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR); // Linear Mag Filter
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, ImageWidth,ImageHeight, 0, GL_BGR_EXT, GL_UNSIGNED_BYTE,&Image[0][0][0]);
-}
-
 bool LoadTexture(LPTSTR szFileName, GLuint &texid) // Creates Texture From A Bitmap File
 {
     HBITMAP hBMP; // Handle Of The Bitmap
@@ -194,7 +90,7 @@ bool LoadTexture(LPTSTR szFileName, GLuint &texid) // Creates Texture From A Bit
 
 void init (void)     // Create Some Everyday Functions
 {
-    if (!LoadTexture1("C:/_CodeWorkspace/NeheGlut06/Data/NeHe.bmp", textureId))
+    if (!LoadTexture("Data/NeHe.bmp", textureId))
         return;
 
     glEnable(GL_TEXTURE_2D);
@@ -333,7 +229,7 @@ void special_keys ( int a_keys, int x, int y )  // Create Special Function (requ
 int main ( int argc, char** argv )   // Create Main Function For Bringing It All Together
 {
     glutInit( &argc, argv ); // Erm Just Write It =)
-    init ();
+
     glutInitDisplayMode ( GLUT_RGB | GLUT_DOUBLE ); // Display Mode
     glutInitWindowSize  ( 800, 600 ); // If glutFullScreen wasn't called this is the window size
     glutInitWindowPosition(100, 100);
@@ -343,6 +239,8 @@ int main ( int argc, char** argv )   // Create Main Function For Bringing It All
     glutKeyboardFunc    ( keyboard );
     glutSpecialFunc     ( special_keys );
     glutIdleFunc(display);
+
+    init ();
     glutMainLoop        ( );          // Initialize The Main Loop
 
     return 0;
