@@ -19,18 +19,24 @@
 #include <GL/glext.h>
 #endif
 
-#include <stdlib.h>
 #include <stdio.h>
 #include <windows.h>
 #include <windef.h>
 
 static bool s_isfullwindow = false;
+static bool s_light = false;
 static GLfloat s_rotTriangle = 0.0f;
 static GLfloat s_rotQuad = 0.0f;
 static GLfloat s_triStep = 0.0f;
 static GLfloat s_quadStep = 0.0f;
 
-static GLuint textureId;                         // Storage For One Texture ( NEW )
+static GLuint textureId;                         // Storage For One Texture
+
+GLfloat LightAmbient[] = {0.5f, 0.5f, 0.5f, 0.5f};  // Ambient light
+GLfloat LightDiffuse[] = {1.0f, 1.0f, 1.0f, 1.0f};  // Diffuse light
+GLfloat LightPosition[] = {0.0f, 0.0f, 2.0f, 1.0f}; // Light Position
+
+GLuint filter;     // Texture filter
 
 
 bool LoadTexture(LPTSTR szFileName, GLuint &texid) // Creates Texture From A Bitmap File
@@ -102,6 +108,15 @@ void init (void)     // Create Some Everyday Functions
     glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
     glEnable ( GL_COLOR_MATERIAL );
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
+
+	glLightfv(GL_LIGHT1, GL_AMBIENT, LightAmbient);
+	glLightfv(GL_LIGHT1, GL_DIFFUSE, LightDiffuse);
+	glLightfv(GL_LIGHT1, GL_POSITION, LightPosition);
+	glEnable(GL_LIGHT1);
+
+//	glEnable ( GL_CULL_FACE );
+//	glEnable ( GL_COLOR_MATERIAL );
+//	glColorMaterial ( GL_FRONT, GL_AMBIENT_AND_DIFFUSE );
 }
 
 void display ( void )   // Create The Display Function
@@ -118,31 +133,42 @@ void display ( void )   // Create The Display Function
     glBindTexture(GL_TEXTURE_2D, textureId);
   glBegin(GL_QUADS);
     // Front Face
+    //glNormal3f(0.0f, 0.0f, 1.0f);
     glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f,  1.0f);  // Bottom Left Of The Texture and Quad
     glTexCoord2f(1.0f, 0.0f); glVertex3f( 1.0f, -1.0f,  1.0f);  // Bottom Right Of The Texture and Quad
     glTexCoord2f(1.0f, 1.0f); glVertex3f( 1.0f,  1.0f,  1.0f);  // Top Right Of The Texture and Quad
     glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f,  1.0f,  1.0f);  // Top Left Of The Texture and Quad
-    // Back Face
+
+	// Back Face
+	//glNormal3f(0.0f, 0.0f, -1.0f);
     glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);  // Bottom Right Of The Texture and Quad
     glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f,  1.0f, -1.0f);  // Top Right Of The Texture and Quad
     glTexCoord2f(0.0f, 1.0f); glVertex3f( 1.0f,  1.0f, -1.0f);  // Top Left Of The Texture and Quad
     glTexCoord2f(0.0f, 0.0f); glVertex3f( 1.0f, -1.0f, -1.0f);  // Bottom Left Of The Texture and Quad
-    // Top Face
+
+	// Top Face
+	//glNormal3f(0.0f, 1.0f, 0.0f);
     glTexCoord2f(0.0f, 1.0f); glVertex3f(-1.0f,  1.0f, -1.0f);  // Top Left Of The Texture and Quad
     glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f,  1.0f,  1.0f);  // Bottom Left Of The Texture and Quad
     glTexCoord2f(1.0f, 0.0f); glVertex3f( 1.0f,  1.0f,  1.0f);  // Bottom Right Of The Texture and Quad
     glTexCoord2f(1.0f, 1.0f); glVertex3f( 1.0f,  1.0f, -1.0f);  // Top Right Of The Texture and Quad
-    // Bottom Face
+
+	// Bottom Face
+	//glNormal3f(0.0f, -1.0f, 0.0f);
     glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f, -1.0f, -1.0f);  // Top Right Of The Texture and Quad
     glTexCoord2f(0.0f, 1.0f); glVertex3f( 1.0f, -1.0f, -1.0f);  // Top Left Of The Texture and Quad
     glTexCoord2f(0.0f, 0.0f); glVertex3f( 1.0f, -1.0f,  1.0f);  // Bottom Left Of The Texture and Quad
     glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f,  1.0f);  // Bottom Right Of The Texture and Quad
-    // Right face
+
+	// Right face
+	//glNormal3f(1.0f, 0.0f, 0.0f);
     glTexCoord2f(1.0f, 0.0f); glVertex3f( 1.0f, -1.0f, -1.0f);  // Bottom Right Of The Texture and Quad
     glTexCoord2f(1.0f, 1.0f); glVertex3f( 1.0f,  1.0f, -1.0f);  // Top Right Of The Texture and Quad
     glTexCoord2f(0.0f, 1.0f); glVertex3f( 1.0f,  1.0f,  1.0f);  // Top Left Of The Texture and Quad
     glTexCoord2f(0.0f, 0.0f); glVertex3f( 1.0f, -1.0f,  1.0f);  // Bottom Left Of The Texture and Quad
-    // Left Face
+
+	// Left Face
+	//glNormal3f(-1.0f, 0.0f, 0.0f);
     glTexCoord2f(0.0f, 0.0f); glVertex3f(-1.0f, -1.0f, -1.0f);  // Bottom Left Of The Texture and Quad
     glTexCoord2f(1.0f, 0.0f); glVertex3f(-1.0f, -1.0f,  1.0f);  // Bottom Right Of The Texture and Quad
     glTexCoord2f(1.0f, 1.0f); glVertex3f(-1.0f,  1.0f,  1.0f);  // Top Right Of The Texture and Quad
@@ -151,11 +177,11 @@ glEnd();
     glPopMatrix();
 
 
-    glutSwapBuffers ( );
-    // Swap The Buffers To Not Be Left With A Clear Screen
+	s_rotTriangle += s_triStep;
+	s_rotQuad -= s_quadStep;
 
-    s_rotTriangle += s_triStep;
-    s_rotQuad -= s_quadStep;
+	glutSwapBuffers ( );
+    // Swap The Buffers To Not Be Left With A Clear Screen
 }
 
 void reshape ( int w, int h )   // Create The Reshape Function (the viewport)
@@ -183,6 +209,18 @@ void keyboard ( unsigned char key, int x, int y )  // Create Keyboard Function
     case 27:        // When Escape Is Pressed...
         exit ( 0 );   // Exit The Program
         break;        // Ready For Next Case
+
+    case 'L':
+	case 'l':
+        s_light = !s_light;
+
+ 		if (s_light)
+            glEnable(GL_LIGHTING);
+        else
+            glDisable(GL_LIGHTING);
+
+        break;
+
     default:        // Now Wrap It Up
         break;
     }
@@ -226,21 +264,45 @@ void special_keys ( int a_keys, int x, int y )  // Create Special Function (requ
     }
 }
 
+void contextmenu(int menuid)
+{
+	switch(menuid)
+	{
+	case 1:
+		break;
+	case 2:
+		// Blend
+		break;
+	default:
+		break;
+	}
+}
+
 int main ( int argc, char** argv )   // Create Main Function For Bringing It All Together
 {
     glutInit( &argc, argv ); // Erm Just Write It =)
 
-    glutInitDisplayMode ( GLUT_RGB | GLUT_DOUBLE ); // Display Mode
+    glutInitDisplayMode ( GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH); // Display Mode
     glutInitWindowSize  ( 800, 600 ); // If glutFullScreen wasn't called this is the window size
     glutInitWindowPosition(100, 100);
     glutCreateWindow    ( "NeHe's OpenGL Sample 05" ); // Window Title (argv[0] for current directory as title)
+
+	init ();
+
     glutDisplayFunc     ( display );  // Matching Earlier Functions To Their Counterparts
     glutReshapeFunc     ( reshape );
     glutKeyboardFunc    ( keyboard );
     glutSpecialFunc     ( special_keys );
     glutIdleFunc(display);
 
-    init ();
+	glutCreateMenu(contextmenu);
+
+	const char* szVersionString = (const char *)glGetString(GL_VERSION);
+	char szOpenGLVersion[50] = {0};
+	strcat(szOpenGLVersion, "OpenGL Version ");
+	strcat(szOpenGLVersion, szVersionString);
+	glutAddMenuEntry(szOpenGLVersion, 1);
+	glutAttachMenu(GLUT_RIGHT_BUTTON);
     glutMainLoop        ( );          // Initialize The Main Loop
 
     return 0;
